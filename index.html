@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RenewEQ Document Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; }
+  header { background: #1a3a5c; color: #fff; padding: 18px 32px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header span { font-size: 0.9rem; opacity: 0.75; }
+  .container { max-width: 920px; margin: 32px auto; padding: 0 16px 60px; }
+  .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; overflow: hidden; }
+  .card-header { background: #1a3a5c; color: #fff; padding: 12px 20px; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card-body.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.full { grid-column: 1 / -1; }
+  .field.span2 { grid-column: span 2; }
+  label { font-size: 0.78rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.04em; }
+  input, select { border: 1px solid #ccc; border-radius: 4px; padding: 8px 10px; font-size: 0.9rem; font-family: Arial, sans-serif; width: 100%; background: #fafafa; transition: border 0.15s; }
+  input:focus { outline: none; border-color: #1a3a5c; background: #fff; }
+  input.auto { background: #eef4fb; color: #1a3a5c; font-weight: 600; }
+  input.auto:focus { background: #eef4fb; }
+  .hint { font-size: 0.73rem; color: #888; margin-top: 2px; }
+  .hint.auto { color: #1a3a5c; }
+  .buyer-tabs { display: flex; gap: 8px; padding: 12px 20px 0; background: #fff; }
+  .tab { padding: 7px 18px; border-radius: 4px 4px 0 0; border: 1px solid #ccc; border-bottom: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; background: #eee; color: #666; }
+  .tab.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+  .buyer-panel { display: none; padding: 16px 20px; border-top: 2px solid #1a3a5c; }
+  .buyer-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .required::after { content: ' *'; color: #c0392b; }
+  .btn-generate { display: block; width: 100%; padding: 16px; background: #1a3a5c; color: #fff; font-size: 1.05rem; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+  .btn-generate:hover { background: #2a5080; }
+  .btn-generate:disabled { background: #aaa; cursor: not-allowed; }
+  .status { text-align: center; padding: 10px; font-size: 0.9rem; color: #444; min-height: 24px; margin-top: 8px; }
+  .status.error { color: #c0392b; }
+  .calc-preview { background: #f7faff; border: 1px solid #c5d8f0; border-radius: 6px; padding: 14px 18px; margin: 0 20px 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .calc-preview .item { text-align: center; }
+  .calc-preview .item .val { font-size: 1.1rem; font-weight: 700; color: #1a3a5c; }
+  .calc-preview .item .lbl { font-size: 0.72rem; color: #888; text-transform: uppercase; margin-top: 2px; }
+  .section-note { grid-column: 1/-1; font-size: 0.8rem; color: #888; font-style: italic; }
+</style>
+</head>
+<body>
+<header>
+  <h1>RenewEQ, LLC &mdash; Document Generator</h1>
+  <span>Agreement for Deed / Seller-Financed Closing Package &mdash; Up to 4 Buyers</span>
+</header>
+<div class="container">
+
+  <!-- PROPERTY -->
+  <div class="card">
+    <div class="card-header">Property Information</div>
+    <div class="card-body">
+      <div class="field full">
+        <label class="required">Property Address</label>
+        <input type="text" id="property_address" placeholder="123 Main St, City, ST 00000">
+      </div>
+      <div class="field">
+        <label class="required">City</label>
+        <input type="text" id="city">
+      </div>
+      <div class="field">
+        <label class="required">County</label>
+        <input type="text" id="county">
+      </div>
+      <div class="field">
+        <label class="required">State</label>
+        <input type="text" id="state" placeholder="e.g. Michigan">
+      </div>
+      <div class="field">
+        <label class="required">Document / Transaction Date</label>
+        <input type="text" id="doc_date" placeholder="e.g. 6/17/2026">
+      </div>
+      <div class="field full">
+        <label>Legal Description</label>
+        <input type="text" id="legal_description" placeholder="e.g. LOT 49, HILLCREST SUBDIVISION">
+      </div>
+      <div class="field">
+        <label>PIN / Tax ID (PID)</label>
+        <input type="text" id="pid">
+      </div>
+    </div>
+  </div>
+
+  <!-- SELLER -->
+  <div class="card">
+    <div class="card-header">Seller / RenewEQ Information</div>
+    <div class="card-body">
+      <div class="field">
+        <label class="required">Seller Name (Entity)</label>
+        <input type="text" id="seller_name" value="RenewEQ, LLC">
+      </div>
+      <div class="field">
+        <label>Authorized Signor</label>
+        <input type="text" id="signor" value="Marisa Gotsch">
+      </div>
+      <div class="field">
+        <label>Payment Method</label>
+        <input type="text" id="payment_method" value="Buildium">
+      </div>
+      <div class="field">
+        <label>Servicing Fee</label>
+        <input type="text" id="servicing_fee" value="$120.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- DEAL TERMS -->
+  <div class="card">
+    <div class="card-header">Deal Terms</div>
+    <div class="card-body cols3">
+
+      <div class="field">
+        <label class="required">Purchase Price ($)</label>
+        <input type="text" id="purchase_price_numbers" placeholder="106000" oninput="onPriceChange()">
+        <div class="hint">Numbers only, no $ or commas</div>
+      </div>
+      <div class="field span2">
+        <label>Purchase Price (Words) — auto-filled</label>
+        <input type="text" id="purchase_price_words" class="auto" placeholder="Auto-calculated">
+        <div class="hint auto">&#9656; Auto-generated from number above</div>
+      </div>
+
+      <div class="field">
+        <label class="required">Down Payment ($)</label>
+        <input type="text" id="down_payment_numbers" placeholder="4000" oninput="onDownPaymentChange()">
+        <div class="hint">Numbers only</div>
+      </div>
+      <div class="field span2">
+        <label>Down Payment (Words) — auto-filled</label>
+        <input type="text" id="down_payment_words" class="auto" placeholder="Auto-calculated">
+        <div class="hint auto">&#9656; Auto-generated from number above</div>
+      </div>
+
+      <div class="field">
+        <label>Loan Amount ($) — auto-calculated</label>
+        <input type="text" id="loan_amount_numbers" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; Purchase Price minus Down Payment</div>
+      </div>
+      <div class="field span2">
+        <label>Loan Amount (Words) — auto-filled</label>
+        <input type="text" id="loan_amount_words" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; Auto-generated</div>
+      </div>
+
+      <div class="field">
+        <label class="required">Interest Rate (%)</label>
+        <input type="text" id="interest_rate_numbers" placeholder="11.0207" oninput="onRateChange()">
+        <div class="hint">e.g. 11.0207</div>
+      </div>
+      <div class="field span2">
+        <label>Interest Rate (Words) — auto-filled</label>
+        <input type="text" id="interest_rate_words" class="auto" placeholder="Auto-calculated">
+        <div class="hint auto">&#9656; Auto-generated from rate above</div>
+      </div>
+
+      <div class="field">
+        <label class="required">Loan Term (Years)</label>
+        <input type="text" id="loan_term_years" placeholder="30" oninput="onTermChange()">
+        <div class="hint">e.g. 30 (used to calculate P&amp;I)</div>
+      </div>
+      <div class="field">
+        <label>P&amp;I Payment ($) — auto-calculated</label>
+        <input type="text" id="pi_numbers" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; Based on loan, rate, term</div>
+      </div>
+      <div class="field">
+        <label>P&amp;I Payment (Words) — auto-filled</label>
+        <input type="text" id="pi_words" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; Auto-generated</div>
+      </div>
+
+      <div class="field">
+        <label class="required">First Payment Date</label>
+        <input type="text" id="first_payment_date" placeholder="4/1/2026">
+      </div>
+      <div class="field">
+        <label>Maturity Date — auto-calculated</label>
+        <input type="text" id="maturity_date" class="auto" placeholder="Auto-calculated">
+        <div class="hint auto">&#9656; Based on first payment + term</div>
+      </div>
+      <div class="field">
+        <label>Loan Term (Months) — auto-calculated</label>
+        <input type="text" id="loan_term_months" class="auto" readonly>
+        <div class="hint auto">&#9656; Years x 12</div>
+      </div>
+
+      <div class="field">
+        <label class="required">Monthly Property Taxes ($)</label>
+        <input type="text" id="monthly_taxes_numbers" placeholder="107.03" oninput="onTaxChange()">
+        <div class="hint">Numbers only</div>
+      </div>
+      <div class="field">
+        <label>Monthly Taxes (Words) — auto-filled</label>
+        <input type="text" id="monthly_taxes_words" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; Auto-generated</div>
+      </div>
+      <div class="field">
+        <label>Total Monthly Payment (PITI + Servicing) — auto-calculated</label>
+        <input type="text" id="total_monthly_payment" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; P&amp;I + Taxes + Servicing Fee</div>
+      </div>
+
+      <div class="field">
+        <label>Deposit Amount ($)</label>
+        <input type="text" id="deposit_amount" placeholder="4000" oninput="onDepositChange()">
+      </div>
+      <div class="field">
+        <label>Deposit Amount (Words) — auto-filled</label>
+        <input type="text" id="deposit_amount_words" class="auto" placeholder="Auto-calculated" readonly>
+      </div>
+      <div class="field">
+        <label>Closing Deadline Date</label>
+        <input type="text" id="closing_date" placeholder="7/1/2026">
+      </div>
+
+    </div>
+
+    <!-- Live calc preview -->
+    <div class="calc-preview" id="calc-preview" style="display:none;">
+      <div class="item"><div class="val" id="prev-loan">—</div><div class="lbl">Loan Amount</div></div>
+      <div class="item"><div class="val" id="prev-pi">—</div><div class="lbl">P&amp;I / mo</div></div>
+      <div class="item"><div class="val" id="prev-total">—</div><div class="lbl">Total / mo</div></div>
+      <div class="item"><div class="val" id="prev-maturity">—</div><div class="lbl">Maturity Date</div></div>
+    </div>
+  </div>
+
+  <!-- TILA -->
+  <div class="card">
+    <div class="card-header">Truth-in-Lending Figures — Auto-Calculated</div>
+    <div class="card-body">
+      <div class="field">
+        <label>Finance Charge (Total Cost of Credit)</label>
+        <input type="text" id="finance_charge" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; (P&amp;I x Payments) minus Loan Amount</div>
+      </div>
+      <div class="field">
+        <label>Total of Payments</label>
+        <input type="text" id="total_of_payments" class="auto" placeholder="Auto-calculated" readonly>
+        <div class="hint auto">&#9656; P&amp;I x Number of Payments</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUYERS -->
+  <div class="card">
+    <div class="card-header">Buyer(s) Information</div>
+    <div class="buyer-tabs">
+      <div class="tab active" onclick="showBuyer(1)">Buyer 1</div>
+      <div class="tab" onclick="showBuyer(2)">Buyer 2</div>
+      <div class="tab" onclick="showBuyer(3)">Buyer 3</div>
+      <div class="tab" onclick="showBuyer(4)">Buyer 4</div>
+    </div>
+    <div id="buyer-panel-1" class="buyer-panel active">
+      <div class="field full section-note">Buyer 1 is required. Buyers 2–4 are optional — leave blank if unused.</div>
+      <div class="field"><label class="required">Full Legal Name</label><input type="text" id="buyer1_name"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer1_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer1_phone"></div>
+    </div>
+    <div id="buyer-panel-2" class="buyer-panel">
+      <div class="field"><label>Full Legal Name</label><input type="text" id="buyer2_name" placeholder="(optional)"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer2_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer2_phone"></div>
+    </div>
+    <div id="buyer-panel-3" class="buyer-panel">
+      <div class="field"><label>Full Legal Name</label><input type="text" id="buyer3_name" placeholder="(optional)"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer3_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer3_phone"></div>
+    </div>
+    <div id="buyer-panel-4" class="buyer-panel">
+      <div class="field"><label>Full Legal Name</label><input type="text" id="buyer4_name" placeholder="(optional)"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer4_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer4_phone"></div>
+    </div>
+  </div>
+
+  <button class="btn-generate" onclick="generate()">&#8681; Generate Document Package (ZIP)</button>
+  <div class="status" id="status"></div>
+
+</div>
+
+<script>
+// ── Number-to-words ──────────────────────────────────────────────────────────
+const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+function wordsUnder1000(n) {
+  if (n === 0) return '';
+  if (n < 20) return ones[n];
+  if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? '-' + ones[n%10] : '');
+  return ones[Math.floor(n/100)] + ' Hundred' + (n%100 ? ' ' + wordsUnder1000(n%100) : '');
+}
+
+function intToWords(n) {
+  if (n === 0) return 'Zero';
+  let result = '';
+  const billions = Math.floor(n / 1000000000);
+  const millions = Math.floor((n % 1000000000) / 1000000);
+  const thousands = Math.floor((n % 1000000) / 1000);
+  const remainder = n % 1000;
+  if (billions) result += wordsUnder1000(billions) + ' Billion ';
+  if (millions) result += wordsUnder1000(millions) + ' Million ';
+  if (thousands) result += wordsUnder1000(thousands) + ' Thousand ';
+  if (remainder) result += wordsUnder1000(remainder);
+  return result.trim();
+}
+
+function dollarToWords(val) {
+  // val is a number like 106000.00
+  const dollars = Math.floor(val);
+  const cents = Math.round((val - dollars) * 100);
+  const centsStr = cents === 0 ? '00/100' : (cents < 10 ? '0' + cents : cents) + '/100';
+  return intToWords(dollars) + ' and ' + centsStr + ' Dollars';
+}
+
+function rateToWords(rateStr) {
+  // e.g. "11.0207" -> "Eleven and 207/10000"
+  const parts = rateStr.trim().split('.');
+  const whole = parseInt(parts[0]) || 0;
+  if (!parts[1]) return intToWords(whole);
+  const decimals = parts[1];
+  const decVal = parseInt(decimals);
+  const denominator = Math.pow(10, decimals.length);
+  return intToWords(whole) + ' and ' + decVal + '/' + denominator;
+}
+
+function fmt(n) {
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseDollars(str) {
+  return parseFloat((str || '').replace(/[^0-9.]/g, '')) || 0;
+}
+
+function calcPI(principal, annualRate, termMonths) {
+  if (!principal || !annualRate || !termMonths) return 0;
+  const r = annualRate / 100 / 12;
+  const n = termMonths;
+  return principal * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+}
+
+function calcMaturityDate(firstPaymentStr, termMonths) {
+  if (!firstPaymentStr || !termMonths) return '';
+  const parts = firstPaymentStr.trim().split('/');
+  if (parts.length < 2) return '';
+  let month = parseInt(parts[0]);
+  let year = parseInt(parts[parts.length === 3 ? 2 : 1]);
+  if (parts.length === 2) year = parseInt(parts[1]);
+  if (isNaN(month) || isNaN(year)) return '';
+  // Maturity = first payment date + (termMonths - 1) months
+  month += termMonths - 1;
+  year += Math.floor((month - 1) / 12);
+  month = ((month - 1) % 12) + 1;
+  return month + '/1/' + year;
+}
+
+function getServicingFee() {
+  return parseDollars(document.getElementById('servicing_fee').value || '120');
+}
+
+function recalcAll() {
+  const pp = parseDollars(document.getElementById('purchase_price_numbers').value);
+  const dp = parseDollars(document.getElementById('down_payment_numbers').value);
+  const loan = pp > 0 && dp >= 0 ? pp - dp : 0;
+  const rate = parseFloat(document.getElementById('interest_rate_numbers').value) || 0;
+  const termYears = parseFloat(document.getElementById('loan_term_years').value) || 0;
+  const termMonths = Math.round(termYears * 12);
+  const taxes = parseDollars(document.getElementById('monthly_taxes_numbers').value);
+  const firstPmt = document.getElementById('first_payment_date').value;
+  const servicingFee = getServicingFee();
+
+  // Loan amount
+  if (loan > 0) {
+    set('loan_amount_numbers', fmt(loan));
+    set('loan_amount_words', dollarToWords(loan));
+  } else {
+    set('loan_amount_numbers', '');
+    set('loan_amount_words', '');
+  }
+
+  // Term months
+  set('loan_term_months', termMonths > 0 ? termMonths.toString() : '');
+
+  // P&I
+  const pi = loan > 0 && rate > 0 && termMonths > 0 ? calcPI(loan, rate, termMonths) : 0;
+  if (pi > 0) {
+    set('pi_numbers', fmt(pi));
+    set('pi_words', dollarToWords(pi));
+  } else {
+    set('pi_numbers', '');
+    set('pi_words', '');
+  }
+
+  // Maturity date
+  const maturity = termMonths > 0 ? calcMaturityDate(firstPmt, termMonths) : '';
+  set('maturity_date', maturity);
+
+  // Total monthly
+  const total = pi + taxes + servicingFee;
+  set('total_monthly_payment', total > 0 ? fmt(total) : '');
+
+  // TILA
+  if (pi > 0 && termMonths > 0) {
+    const totalOfPmts = pi * termMonths;
+    const financeCharge = totalOfPmts - loan;
+    set('finance_charge', fmt(financeCharge));
+    set('total_of_payments', fmt(totalOfPmts));
+  } else {
+    set('finance_charge', '');
+    set('total_of_payments', '');
+  }
+
+  // Taxes words
+  if (taxes > 0) {
+    set('monthly_taxes_words', dollarToWords(taxes));
+  }
+
+  // Preview panel
+  const preview = document.getElementById('calc-preview');
+  if (loan > 0 || pi > 0) {
+    preview.style.display = 'grid';
+    document.getElementById('prev-loan').textContent = loan > 0 ? fmt(loan) : '—';
+    document.getElementById('prev-pi').textContent = pi > 0 ? fmt(pi) : '—';
+    document.getElementById('prev-total').textContent = total > 0 ? fmt(total) : '—';
+    document.getElementById('prev-maturity').textContent = maturity || '—';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function onPriceChange() {
+  const val = parseDollars(document.getElementById('purchase_price_numbers').value);
+  if (val > 0) set('purchase_price_words', dollarToWords(val));
+  recalcAll();
+}
+function onDownPaymentChange() {
+  const val = parseDollars(document.getElementById('down_payment_numbers').value);
+  if (val > 0) set('down_payment_words', dollarToWords(val));
+  recalcAll();
+}
+function onRateChange() {
+  const raw = document.getElementById('interest_rate_numbers').value.trim();
+  if (raw) set('interest_rate_words', rateToWords(raw));
+  recalcAll();
+}
+function onTermChange() { recalcAll(); }
+function onTaxChange() { recalcAll(); }
+function onDepositChange() {
+  const val = parseDollars(document.getElementById('deposit_amount').value);
+  if (val > 0) set('deposit_amount_words', dollarToWords(val));
+  else set('deposit_amount_words', '');
+}
+
+// Re-calc when servicing fee changes
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('servicing_fee').addEventListener('input', recalcAll);
+  document.getElementById('first_payment_date').addEventListener('input', recalcAll);
+});
+
+function showBuyer(n) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === n-1));
+  document.querySelectorAll('.buyer-panel').forEach((p,i) => p.classList.toggle('active', i === n-1));
+}
+
+function collect() {
+  const ids = ['property_address','city','county','state','legal_description','pid','doc_date',
+    'seller_name','signor','payment_method','servicing_fee',
+    'purchase_price_numbers','purchase_price_words',
+    'down_payment_numbers','down_payment_words',
+    'loan_amount_numbers','loan_amount_words',
+    'interest_rate_numbers','interest_rate_words',
+    'loan_term_years','loan_term_months',
+    'pi_numbers','pi_words',
+    'first_payment_date','maturity_date',
+    'monthly_taxes_numbers','monthly_taxes_words',
+    'total_monthly_payment','deposit_amount','deposit_amount_words',
+    'closing_date','finance_charge','total_of_payments',
+    'buyer1_name','buyer1_email','buyer1_phone',
+    'buyer2_name','buyer2_email','buyer2_phone',
+    'buyer3_name','buyer3_email','buyer3_phone',
+    'buyer4_name','buyer4_email','buyer4_phone'];
+  const data = {};
+  ids.forEach(id => { data[id] = (document.getElementById(id)||{}).value || ''; });
+  return data;
+}
+
+async function generate() {
+  const data = collect();
+  if (!data.property_address || !data.buyer1_name || !data.seller_name) {
+    setStatus('Please fill in: Property Address, Seller Name, and at least Buyer 1 Name.', true);
+    return;
+  }
+  const btn = document.querySelector('.btn-generate');
+  btn.disabled = true;
+  setStatus('Generating documents\u2026 please wait.');
+  try {
+    const res = await fetch('/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'RenewEQ_Documents.zip';
+    a.click();
+    setStatus('');
+  } catch(e) {
+    setStatus('Error: ' + e.message, true);
+  }
+  btn.disabled = false;
+}
+
+function setStatus(msg, isError) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (isError ? ' error' : '');
+}
+</script>
+</body>
+</html>
