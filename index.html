@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RenewEQ Document Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; }
+  header { background: #1a3a5c; color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header span { font-size: 0.9rem; opacity: 0.75; }
+  .container { max-width: 900px; margin: 32px auto; padding: 0 16px 60px; }
+  .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; overflow: hidden; }
+  .card-header { background: #1a3a5c; color: #fff; padding: 12px 20px; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card-body.cols1 { grid-template-columns: 1fr; }
+  .card-body.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 0.78rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.04em; }
+  input, textarea, select { border: 1px solid #ccc; border-radius: 4px; padding: 8px 10px; font-size: 0.9rem; font-family: Arial, sans-serif; width: 100%; background: #fafafa; transition: border 0.15s; }
+  input:focus, textarea:focus { outline: none; border-color: #1a3a5c; background: #fff; }
+  .buyer-tabs { display: flex; gap: 8px; padding: 12px 20px 0; background: #fff; }
+  .tab { padding: 7px 18px; border-radius: 4px 4px 0 0; border: 1px solid #ccc; border-bottom: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; background: #eee; color: #666; }
+  .tab.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+  .buyer-panel { display: none; padding: 16px 20px; border-top: 2px solid #1a3a5c; }
+  .buyer-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .hint { font-size: 0.75rem; color: #888; margin-top: 2px; }
+  .btn-generate { display: block; width: 100%; padding: 16px; background: #1a3a5c; color: #fff; font-size: 1.05rem; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; letter-spacing: 0.04em; transition: background 0.2s; }
+  .btn-generate:hover { background: #2a5080; }
+  .btn-generate:disabled { background: #aaa; cursor: not-allowed; }
+  .status { text-align: center; padding: 10px; font-size: 0.9rem; color: #444; margin-top: 10px; min-height: 24px; }
+  .status.error { color: #c0392b; }
+  .required::after { content: ' *'; color: #c0392b; }
+  .section-note { grid-column: 1/-1; font-size: 0.8rem; color: #888; font-style: italic; padding-bottom: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>RenewEQ, LLC &mdash; Document Generator</h1>
+    <span>Agreement for Deed / Seller-Financed Closing Package</span>
+  </div>
+</header>
+<div class="container">
+
+  <!-- PROPERTY -->
+  <div class="card">
+    <div class="card-header">Property Information</div>
+    <div class="card-body">
+      <div class="field full">
+        <label class="required">Property Address</label>
+        <input type="text" id="property_address" placeholder="123 Main St, City, ST 00000">
+      </div>
+      <div class="field">
+        <label class="required">City</label>
+        <input type="text" id="city">
+      </div>
+      <div class="field">
+        <label class="required">County</label>
+        <input type="text" id="county">
+      </div>
+      <div class="field">
+        <label class="required">State</label>
+        <input type="text" id="state" placeholder="e.g. Michigan">
+      </div>
+      <div class="field">
+        <label>Legal Description</label>
+        <input type="text" id="legal_description" placeholder="e.g. LOT 49, HILLCREST SUBDIVISION">
+      </div>
+      <div class="field">
+        <label>PIN / Tax ID (PID)</label>
+        <input type="text" id="pid">
+      </div>
+      <div class="field">
+        <label class="required">Document / Transaction Date</label>
+        <input type="text" id="doc_date" placeholder="e.g. 6/17/2026">
+      </div>
+    </div>
+  </div>
+
+  <!-- SELLER -->
+  <div class="card">
+    <div class="card-header">Seller / RenewEQ Information</div>
+    <div class="card-body">
+      <div class="field">
+        <label class="required">Seller Name (Entity)</label>
+        <input type="text" id="seller_name" value="RenewEQ, LLC">
+      </div>
+      <div class="field">
+        <label>Authorized Signor</label>
+        <input type="text" id="signor" value="Marisa Gotsch">
+      </div>
+      <div class="field">
+        <label>Payment Method</label>
+        <input type="text" id="payment_method" value="Buildium" placeholder="e.g. Buildium">
+      </div>
+      <div class="field">
+        <label>Servicing Fee</label>
+        <input type="text" id="servicing_fee" value="$120.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- DEAL TERMS -->
+  <div class="card">
+    <div class="card-header">Deal Terms</div>
+    <div class="card-body">
+      <div class="field">
+        <label class="required">Purchase Price (Numbers)</label>
+        <input type="text" id="purchase_price_numbers" placeholder="$106,000.00" oninput="autoCalcLoan()">
+      </div>
+      <div class="field">
+        <label class="required">Purchase Price (Words)</label>
+        <input type="text" id="purchase_price_words" placeholder="One Hundred Six Thousand and 00/100 Dollars">
+      </div>
+      <div class="field">
+        <label class="required">Down Payment (Numbers)</label>
+        <input type="text" id="down_payment_numbers" placeholder="$4,000.00" oninput="autoCalcLoan()">
+      </div>
+      <div class="field">
+        <label class="required">Down Payment (Words)</label>
+        <input type="text" id="down_payment_words" placeholder="Four Thousand and 00/100 Dollars">
+      </div>
+      <div class="field">
+        <label class="required">Loan Amount (Numbers)</label>
+        <input type="text" id="loan_amount_numbers" placeholder="$102,000.00">
+        <div class="hint">Auto-calculated from Purchase Price minus Down Payment</div>
+      </div>
+      <div class="field">
+        <label class="required">Loan Amount (Words)</label>
+        <input type="text" id="loan_amount_words" placeholder="One Hundred Two Thousand and 00/100 Dollars">
+      </div>
+      <div class="field">
+        <label class="required">Interest Rate (Numbers)</label>
+        <input type="text" id="interest_rate_numbers" placeholder="11.0207">
+      </div>
+      <div class="field">
+        <label>Interest Rate (Words)</label>
+        <input type="text" id="interest_rate_words" placeholder="Eleven and 0207/10000">
+      </div>
+      <div class="field">
+        <label class="required">P&amp;I Payment (Numbers)</label>
+        <input type="text" id="pi_numbers" placeholder="$972.97">
+      </div>
+      <div class="field">
+        <label class="required">P&amp;I Payment (Words)</label>
+        <input type="text" id="pi_words" placeholder="Nine Hundred Seventy-Two and 97/100 Dollars">
+      </div>
+      <div class="field">
+        <label class="required">First Payment Date</label>
+        <input type="text" id="first_payment_date" placeholder="4/1/2026">
+      </div>
+      <div class="field">
+        <label class="required">Maturity Date</label>
+        <input type="text" id="maturity_date" placeholder="3/1/2056">
+      </div>
+      <div class="field">
+        <label class="required">Monthly Property Taxes (Numbers)</label>
+        <input type="text" id="monthly_taxes_numbers" placeholder="$107.03">
+      </div>
+      <div class="field">
+        <label>Monthly Property Taxes (Words)</label>
+        <input type="text" id="monthly_taxes_words" placeholder="One Hundred Seven and 03/100 Dollars">
+      </div>
+      <div class="field">
+        <label>Total Monthly Payment (PITI + Servicing)</label>
+        <input type="text" id="total_monthly_payment" placeholder="$1,200.00">
+        <div class="hint">P&amp;I + Taxes + Servicing Fee</div>
+      </div>
+      <div class="field">
+        <label>Deposit Amount</label>
+        <input type="text" id="deposit_amount" placeholder="$4,000.00">
+      </div>
+      <div class="field">
+        <label>Closing Deadline Date</label>
+        <input type="text" id="closing_date" placeholder="e.g. 7/1/2026">
+      </div>
+    </div>
+  </div>
+
+  <!-- TIL extras -->
+  <div class="card">
+    <div class="card-header">Truth-in-Lending Figures</div>
+    <div class="card-body">
+      <div class="field">
+        <label>Finance Charge (Total Cost of Credit)</label>
+        <input type="text" id="finance_charge" placeholder="e.g. $248,269.20">
+      </div>
+      <div class="field">
+        <label>Total of Payments</label>
+        <input type="text" id="total_of_payments" placeholder="e.g. $350,269.20">
+      </div>
+    </div>
+  </div>
+
+  <!-- BUYERS -->
+  <div class="card">
+    <div class="card-header">Buyer(s) Information</div>
+    <div class="buyer-tabs">
+      <div class="tab active" onclick="showBuyer(1)">Buyer 1</div>
+      <div class="tab" onclick="showBuyer(2)">Buyer 2</div>
+      <div class="tab" onclick="showBuyer(3)">Buyer 3</div>
+      <div class="tab" onclick="showBuyer(4)">Buyer 4</div>
+    </div>
+    <div id="buyer-panel-1" class="buyer-panel active">
+      <div class="field full section-note">Buyer 1 is required. Buyers 2–4 are optional.</div>
+      <div class="field"><label class="required">Full Name</label><input type="text" id="buyer1_name" placeholder="Jane Smith"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer1_email" placeholder="jane@email.com"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer1_phone" placeholder="(555) 555-5555"></div>
+    </div>
+    <div id="buyer-panel-2" class="buyer-panel">
+      <div class="field"><label>Full Name</label><input type="text" id="buyer2_name" placeholder="(optional)"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer2_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer2_phone"></div>
+    </div>
+    <div id="buyer-panel-3" class="buyer-panel">
+      <div class="field"><label>Full Name</label><input type="text" id="buyer3_name" placeholder="(optional)"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer3_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer3_phone"></div>
+    </div>
+    <div id="buyer-panel-4" class="buyer-panel">
+      <div class="field"><label>Full Name</label><input type="text" id="buyer4_name" placeholder="(optional)"></div>
+      <div class="field"><label>Email</label><input type="email" id="buyer4_email"></div>
+      <div class="field"><label>Phone</label><input type="tel" id="buyer4_phone"></div>
+    </div>
+  </div>
+
+  <button class="btn-generate" onclick="generate()">&#8681; Generate Document Package (ZIP)</button>
+  <div class="status" id="status"></div>
+
+</div>
+<script>
+function showBuyer(n) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n - 1));
+  document.querySelectorAll('.buyer-panel').forEach((p, i) => p.classList.toggle('active', i === n - 1));
+}
+function autoCalcLoan() {
+  const pp = parseFloat((document.getElementById('purchase_price_numbers').value || '').replace(/[^0-9.]/g, ''));
+  const dp = parseFloat((document.getElementById('down_payment_numbers').value || '').replace(/[^0-9.]/g, ''));
+  if (!isNaN(pp) && !isNaN(dp)) {
+    const loan = pp - dp;
+    document.getElementById('loan_amount_numbers').value = '$' + loan.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+}
+function collect() {
+  const ids = ['property_address','city','county','state','legal_description','pid','doc_date',
+    'seller_name','signor','payment_method','servicing_fee',
+    'purchase_price_numbers','purchase_price_words','down_payment_numbers','down_payment_words',
+    'loan_amount_numbers','loan_amount_words','interest_rate_numbers','interest_rate_words',
+    'pi_numbers','pi_words','first_payment_date','maturity_date',
+    'monthly_taxes_numbers','monthly_taxes_words','total_monthly_payment',
+    'deposit_amount','closing_date','finance_charge','total_of_payments',
+    'buyer1_name','buyer1_email','buyer1_phone',
+    'buyer2_name','buyer2_email','buyer2_phone',
+    'buyer3_name','buyer3_email','buyer3_phone',
+    'buyer4_name','buyer4_email','buyer4_phone'];
+  const data = {};
+  ids.forEach(id => { data[id] = (document.getElementById(id) || {}).value || ''; });
+  return data;
+}
+async function generate() {
+  const data = collect();
+  if (!data.property_address || !data.buyer1_name || !data.seller_name) {
+    setStatus('Please fill in at least: Property Address, Seller Name, and Buyer 1 Name.', true);
+    return;
+  }
+  const btn = document.querySelector('.btn-generate');
+  btn.disabled = true;
+  setStatus('Generating documents, please wait...');
+  try {
+    const res = await fetch('/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    if (!res.ok) throw new Error('Server error: ' + res.status);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'RenewEQ_Documents.zip'; a.click();
+    setStatus('');
+  } catch (e) {
+    setStatus('Error: ' + e.message, true);
+  }
+  btn.disabled = false;
+}
+function setStatus(msg, isError) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (isError ? ' error' : '');
+}
+</script>
+</body>
+</html>
